@@ -1,51 +1,68 @@
---liquibase formatted sql
-
---changeset yura:2020-12-20-create-table-auto/1
-create table auto (
-id serial,
-make varchar(20),
-model varchar(20),
-primary key(id)
+--liquibase formatted sql 
+--changeset bob:1  
+create  table  test1  (  
+id  int  primary  key,  
+name  varchar(255)  
 );
 
---changeset yura:2020-12-20-create-table-car/2
-create table car (
-id serial,
-auto_id int,
-number_car varchar(10),
-PRIMARY KEY(id),
-FOREIGN KEY(auto_id) REFERENCES auto(id)
-);
-
---changeset yura:2020-12-20-create-table-person/3
-create table person (
+--changeset yura:2  
+create table person (  
 id serial,
 first_name varchar(20),
 last_name varchar(20),
-phone_number varchar(20),
-car_id int unique,
-PRIMARY KEY(id),
-foreign key(car_id) references car(id)
+phone_number int,
+PRIMARY KEY(id)
 );
 
---changeset yura:2020-12-20-create-table-violation/4
+create table make (
+id serial,
+make_name varchar(20),
+PRIMARY KEY(id)
+);
+
+create table model (
+id serial,
+model_name varchar(20),
+PRIMARY KEY(id)
+);
+
+create table car (
+id serial,
+make_id int,
+model_id int,
+number_car varchar(10),
+PRIMARY KEY(id),
+FOREIGN KEY(make_id) REFERENCES make(id),
+FOREIGN KEY(model_id) REFERENCES model(id)
+);
+
 create table violation (
 id serial,
 violation_name varchar(100),
 PRIMARY KEY(id)
 );
 
---changeset yura:2020-12-20-create-table-result-table/5
 create table result_table (
 id serial,
 person_id int,
+car_id int,
 violation_id int,
 PRIMARY KEY(id),
 FOREIGN KEY(person_id) REFERENCES person(id),
+FOREIGN KEY(car_id) REFERENCES car(id),
 FOREIGN KEY(violation_id) REFERENCES violation(id)
 );
 
---changeset yura:2020-12-20-insert-table-person/6
+--changeset yura:3
+drop table test1;
+
+--changeset yura:4
+alter table person drop column phone_number;
+
+--changeset yura:5
+alter table person add column phone_number varchar(20);
+
+--changeset yura:6
 insert into person (first_name, last_name, phone_number) values ('Molli', 'Stones', '1156100271');
 insert into person (first_name, last_name, phone_number) values ('Almire', 'Sandels', '8817943025');
 insert into person (first_name, last_name, phone_number) values ('Tish', 'Fiddymont', '9006943997');
@@ -1047,7 +1064,28 @@ insert into person (first_name, last_name, phone_number) values ('Serge', 'Cridg
 insert into person (first_name, last_name, phone_number) values ('Niki', 'Rulten', '6309387269');
 insert into person (first_name, last_name, phone_number) values ('Teodoro', 'Penfold', '4093765008');
 
---changeset yura:2020-12-20-insert-table-auto/7
+--changeset yura:7
+drop table car cascade;
+Drop table make cascade;
+drop table model cascade;
+
+
+create table auto (
+id serial,
+make varchar(20),
+model varchar(20),
+primary key(id)
+);
+
+create table car (
+id serial,
+auto_id int,
+number_car varchar(10),
+PRIMARY KEY(id),
+FOREIGN KEY(auto_id) REFERENCES auto(id)
+);
+
+--changeset yura:8
 insert into auto (make, model) values ('Hyundai', 'Elantra');
 insert into auto (make, model) values ('Mazda', 'B-Series Plus');
 insert into auto (make, model) values ('Chevrolet', 'Blazer');
@@ -1549,7 +1587,7 @@ insert into auto (make, model) values ('Ford', 'E-Series');
 insert into auto (make, model) values ('Ford', 'Econoline E350');
 insert into auto (make, model) values ('Subaru', 'Alcyone SVX');
 
---changeset yura:2020-12-20-insert-table-violation/8
+--changeset yura:9
 insert into violation (violation_name) 
 values
 ('Превышение скорости'),
@@ -1561,7 +1599,7 @@ values
 ('Стоянка в неположенном месте'),
 ('Не уступил дорогу пешеходу');
 
---changeset yura:2020-12-20-insert-table-car/9
+--changeset yura:10
 insert into car (auto_id, number_car) 
 values
 (56, '3465 AA 7'),
@@ -1573,8 +1611,14 @@ values
 (135, '9026 II 4'),
 (99, '0489 AI 7');
 
---changeset yura:2020-12-20-update-table-person/10
-update person set car_id = 1 where id = 3;
+--changeset yura:11
+alter table person add column car_id int,
+add foreign key(car_id) references car(id);
+
+--changeset yura:12
+update person set car_id = 1 where id = 3
+
+--changeset yura:13
 update person set car_id = 2 where id = 2;
 update person set car_id = 3 where id = 234;
 update person set car_id = 4 where id = 6;
@@ -1583,7 +1627,12 @@ update person set car_id = 6 where id = 34;
 update person set car_id = 7 where id = 94;
 update person set car_id = 8 where id = 456;
 
---changeset yura:2020-12-20-insert-table-result-table/11
+alter table person add unique(car_id);
+
+--changeset yura:14
+alter table result_table drop column car_id;
+
+--changeset yura:15
 insert into result_table (person_id, violation_id) 
 values
 (2, 3),
@@ -1602,17 +1651,13 @@ values
 (94, 5),
 (456, 3);
 
---changeset yura:2020-12-20-create-schema-stage/12
-CREATE SCHEMA stage;
-
---changeset yura:2020-12-20-create-table-violation-for-stage/13
+--changeset yura:16
 create table stage.violation (
 id serial,
 violation_name varchar(100),
 PRIMARY KEY(id)
 );
 
---changeset yura:2020-12-20-create-table-auto-for-stage/14
 create table stage.auto (
 id serial,
 make varchar(20),
@@ -1620,7 +1665,6 @@ model varchar(20),
 primary key(id)
 );
 
---changeset yura:2020-12-20-create-table-car-for-stage/15
 create table stage.car (
 id serial,
 auto_id int,
@@ -1629,18 +1673,16 @@ PRIMARY KEY(id),
 FOREIGN KEY(auto_id) REFERENCES auto(id)
 );
 
---changeset yura:2020-12-20-create-table-person-for-stage/16
 create table stage.person (
 id serial,
 first_name varchar(20),
 last_name varchar(20),
-phone_number varchar(20),
+phone_number int,
 car_id int unique,
 PRIMARY KEY(id),
 FOREIGN KEY(car_id) references car(id)
 );
 
---changeset yura:2020-12-20-create-table-result-table-for-stage/17
 create table stage.result_table (
 id serial,
 person_id int,
@@ -1650,7 +1692,35 @@ FOREIGN KEY(person_id) REFERENCES person(id),
 FOREIGN KEY(violation_id) REFERENCES violation(id)
 );
 
---changeset yura:2020-12-20-create-procedure-for-stage-violation/18 endDelimiter:#
+--changeset yura:17
+create table stage.violation (
+id serial,
+violation_name varchar(100),
+PRIMARY KEY(id)
+);
+
+--changeset yura:18 endDelimiter:#
+create function stage_violation_load() returns void
+language plpgsql
+ AS
+    $$
+    begin
+    insert into stage.violation (violation_name)
+    select violation_name from public.violation;
+    end;
+    $$;
+--#
+
+--changeset yura:19
+GRANT EXECUTE ON FUNCTION stage_violation_load() to yura;
+
+--changeset yura:20
+select stage_violation_load();
+
+--changeset yura:21
+drop function stage_violation_load();
+
+--changeset yura:22 endDelimiter:#
 TRUNCATE TABLE stage.violation;
 
 create function stage_violation_load() returns void
@@ -1664,7 +1734,24 @@ language plpgsql
     $$;
 --#
 
---changeset yura:2020-12-20-create-procedure-for-stage-auto/19 endDelimiter:#
+--changeset yura:23 endDelimiter:#
+TRUNCATE TABLE stage.auto;
+
+create function stage_auto_load() returns void
+language plpgsql
+ AS
+    $$
+    begin
+    insert into stage.auto (make, model)
+    select make, model from public.violation;
+    end;
+    $$;
+--#
+
+--changeset yura:24
+drop function stage_auto_load();
+
+--changeset yura:25 endDelimiter:#
 TRUNCATE TABLE stage.auto;
 
 create function stage_auto_load() returns void
@@ -1678,7 +1765,13 @@ language plpgsql
     $$;
 --#
 
---changeset yura:2020-12-20-create-procedure-for-stage-car/20 endDelimiter:#
+--changeset yura:26
+select stage_auto_load();
+
+--changeset yura:27
+select stage_violation_load();
+
+--changeset yura:28 endDelimiter:#
 TRUNCATE TABLE stage.car;
 
 create function stage_car_load() returns void
@@ -1692,7 +1785,10 @@ language plpgsql
     $$;
 --#
 
---changeset yura:2020-12-20-create-procedure-for-stage-person/21 endDelimiter:#
+--changeset yura:29
+select stage_car_load();
+
+--changeset yura:30 endDelimiter:#
 TRUNCATE TABLE stage.person;
 
 create function stage_person_load() returns void
@@ -1706,7 +1802,39 @@ language plpgsql
     $$;
 --#
 
---changeset yura:2020-12-20-create-procedure-for-stage-result-table/22 endDelimiter:#
+--changeset yura:31
+drop table stage.person;
+
+drop function stage_person_load();
+
+create table stage.person (
+id serial,
+first_name varchar(20),
+last_name varchar(20),
+phone_number varchar(20),
+car_id int unique,
+PRIMARY KEY(id),
+FOREIGN KEY(car_id) references car(id)
+);
+
+--changeset yura:32 endDelimiter:#
+TRUNCATE TABLE stage.person;
+
+create function stage_person_load() returns void
+language plpgsql
+ AS
+    $$
+    begin
+    insert into stage.person (first_name, last_name, phone_number, car_id)
+    select first_name, last_name, phone_number, car_id from public.person;
+    end;
+    $$;
+--#
+
+--changeset yura:33
+select stage_person_load();
+
+--changeset yura:34 endDelimiter:#
 TRUNCATE TABLE stage.result_table;
 
 create function stage_result_table_load() returns void
@@ -1720,17 +1848,5 @@ language plpgsql
     $$;
 --#
 
---changeset yura:2020-12-20-select-procedure-for-car/22
-select stage_car_load();
-
---changeset yura:2020-12-20-select-procedure-for-auto/23
-select stage_auto_load();
-
---changeset yura:2020-12-20-select-procedure-for-violation/24
-select stage_violation_load();
-
---changeset yura:2020-12-20-select-procedure-for-person/25
-select stage_person_load();
-
---changeset yura:2020-12-20-select-procedure-for-result-table/26
+--changeset yura:35
 select stage_result_table_load();
