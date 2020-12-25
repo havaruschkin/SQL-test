@@ -1607,14 +1607,14 @@ CREATE SCHEMA stage;
 
 --changeset yura:2020-12-20-create-table-violation-for-stage/13
 create table stage.violation (
-id serial,
+id int,
 violation_name varchar(100),
 PRIMARY KEY(id)
 );
 
 --changeset yura:2020-12-20-create-table-auto-for-stage/14
 create table stage.auto (
-id serial,
+id int,
 make varchar(20),
 model varchar(20),
 primary key(id)
@@ -1622,7 +1622,7 @@ primary key(id)
 
 --changeset yura:2020-12-20-create-table-car-for-stage/15
 create table stage.car (
-id serial,
+id int,
 auto_id int,
 number_car varchar(10),
 PRIMARY KEY(id),
@@ -1631,7 +1631,7 @@ FOREIGN KEY(auto_id) REFERENCES auto(id)
 
 --changeset yura:2020-12-20-create-table-person-for-stage/16
 create table stage.person (
-id serial,
+id int,
 first_name varchar(20),
 last_name varchar(20),
 phone_number varchar(20),
@@ -1642,7 +1642,7 @@ FOREIGN KEY(car_id) references car(id)
 
 --changeset yura:2020-12-20-create-table-result-table-for-stage/17
 create table stage.result_table (
-id serial,
+id int,
 person_id int,
 violation_id int,
 PRIMARY KEY(id),
@@ -1658,8 +1658,8 @@ language plpgsql
  AS
     $$
     begin
-    insert into stage.violation (violation_name)
-    select violation_name from public.violation;
+    insert into stage.violation (id, violation_name)
+    select id, violation_name from public.violation;
     end;
     $$;
 --#
@@ -1672,8 +1672,8 @@ language plpgsql
  AS
     $$
     begin
-    insert into stage.auto (make, model)
-    select make, model from public.auto;
+    insert into stage.auto (id, make, model)
+    select id, make, model from public.auto;
     end;
     $$;
 --#
@@ -1686,8 +1686,8 @@ language plpgsql
  AS
     $$
     begin
-    insert into stage.car (auto_id, number_car)
-    select auto_id, number_car from public.car;
+    insert into stage.car (id,auto_id, number_car)
+    select id, auto_id, number_car from public.car;
     end;
     $$;
 --#
@@ -1700,8 +1700,8 @@ language plpgsql
  AS
     $$
     begin
-    insert into stage.person (first_name, last_name, phone_number, car_id)
-    select first_name, last_name, phone_number, car_id from public.person;
+    insert into stage.person (id, first_name, last_name, phone_number, car_id)
+    select id, first_name, last_name, phone_number, car_id from public.person;
     end;
     $$;
 --#
@@ -1714,8 +1714,8 @@ language plpgsql
  AS
     $$
     begin
-    insert into stage.result_table (person_id, violation_id)
-    select person_id, violation_id from public.result_table;
+    insert into stage.result_table (id, person_id, violation_id)
+    select id, person_id, violation_id from public.result_table;
     end;
     $$;
 --#
