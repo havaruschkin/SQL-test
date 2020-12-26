@@ -1734,3 +1734,35 @@ select stage_person_load();
 
 --changeset yura:2020-12-20-select-procedure-for-result-table/26
 select stage_result_table_load();
+
+--changeset yura:2020-12-25-create-schema-data-mart/27
+create schema data_mart;
+
+--changeset yura:2020-12-25-create-table-person-for-data-mart/28
+create table data_mart.person (
+id int,
+first_name varchar(20),
+last_name varchar(20),
+phone_number varchar(20),
+car_id int unique,
+created_at timestamp,
+updated_at timestamp,
+PRIMARY KEY(id),
+FOREIGN KEY(car_id) references car(id)
+);
+
+--changeset yura:2020-12-25-create-procedure-for-data-mart-person/29 endDelimiter:#
+create function data_mart_person_load() returns void
+language plpgsql
+ AS
+    $$
+    begin
+    insert into data_mart.person (id, first_name, last_name, phone_number, car_id, created_at)
+    select id, first_name, last_name, phone_number, car_id, now() from stage.person sp
+    where sp.id not in (select id from data_mart.person);
+    end;
+    $$;
+--#
+
+--changeset yura:2020-12-26-select-procedure-for-data-mart-person/30
+select data_mart_person_load();
