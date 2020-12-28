@@ -1760,9 +1760,32 @@ language plpgsql
     insert into data_mart.person (id, first_name, last_name, phone_number, car_id, created_at)
     select id, first_name, last_name, phone_number, car_id, now() from stage.person sp
     where sp.id not in (select id from data_mart.person);
+    update data_mart.person as dp
+        set first_name = sp.first_name,
+            last_name = sp.last_name,
+            phone_number = sp.phone_number,
+            car_id = sp.car_id,
+            updated_at = now()
+    from stage.person as sp
+        where dp.id = sp.id
+        and (
+            dp.first_name <> sp.first_name or
+            dp.last_name <> sp.last_name or
+            dp.phone_number <> sp.phone_number or
+            dp.car_id <> sp.car_id
+            );
     end;
     $$;
 --#
 
 --changeset yura:2020-12-26-select-procedure-for-data-mart-person/30
+select data_mart_person_load();
+
+
+--changeset yura:2020-12-28-update-for-stage-person/31
+update stage.person
+set first_name = 'Yura'
+where id = 1;
+
+--changeset yura:2020-12-28-select-procedure-for-data-mart-person/32
 select data_mart_person_load();
