@@ -3314,3 +3314,153 @@ where id = 1;
 
 --changeset yura:2020-12-28-select-procedure-for-data-mart-person/32
 select data_mart_person_load();
+
+--changeset yura:2021-01-01-create-table-auto-for-data-mart/33
+create table data_mart.auto
+(
+    id         int,
+    make       varchar(20),
+    model      varchar(20),
+    created_at timestamp,
+    updated_at timestamp,
+    PRIMARY KEY (id)
+);
+
+--changeset yura:2021-01-01-create-table-car-for-data-mart/34
+create table data_mart.car
+(
+    id         int,
+    auto_id    int,
+    number_car varchar(10),
+    created_at timestamp,
+    updated_at timestamp,
+    PRIMARY KEY (id),
+    FOREIGN KEY (auto_id) REFERENCES auto (id)
+);
+
+--changeset yura:2021-01-01-create-table-violation-for-data-mart/35
+create table data_mart.violation
+(
+    id             int,
+    violation_name varchar(100),
+    created_at     timestamp,
+    updated_at     timestamp,
+    PRIMARY KEY (id)
+);
+
+--changeset yura:2021-01-01-create-table-result-table-for-data-mart/36
+create table data_mart.result_table
+(
+    id           int,
+    person_id    int,
+    violation_id int,
+    created_at   timestamp,
+    updated_at   timestamp,
+    PRIMARY KEY (id),
+    FOREIGN KEY (person_id) REFERENCES person (id),
+    FOREIGN KEY (violation_id) REFERENCES violation (id)
+);
+
+--changeset yura:2021-01-01-create-procedure-for-data-mart-auto/37 endDelimiter:#
+create function data_mart_auto_load() returns void
+    language plpgsql
+AS
+$$
+begin
+    insert into data_mart.auto (id, make, model, created_at)
+    select id, make, model, now()
+    from stage.auto as sa
+    where sa.id not in (select id from data_mart.auto);
+    update data_mart.auto as da
+    set make       = sa.make,
+        model      = sa.model,
+        updated_at = now()
+    from stage.auto as sa
+    where da.id = sa.id
+      and (
+            da.make <> sa.make or
+            da.model <> sa.model
+        );
+end;
+$$;
+--#
+
+--changeset yura:2021-01-04-create-procedure-for-data-mart-car/38 endDelimiter:#
+create function data_mart_car_load() returns void
+    language plpgsql
+AS
+$$
+begin
+    insert into data_mart.car (id, auto_id, number_car, created_at)
+    select id, auto_id, number_car, now()
+    from stage.car as sc
+    where sc.id not in (select id from data_mart.car);
+    update data_mart.car as dc
+    set auto_id    = sc.auto_id,
+        number_car = sc.number_car,
+        updated_at = now()
+    from stage.car as sc
+    where dc.id = sc.id
+      and (
+            dc.auto_id <> sc.auto_id or
+            dc.number_car <> sc.number_car
+        );
+end;
+$$;
+--#
+
+--changeset yura:2021-01-04-create-procedure-for-data-mart-result-table/39 endDelimiter:#
+create function data_mart_result_table_load() returns void
+    language plpgsql
+AS
+$$
+begin
+    insert into data_mart.result_table (id, person_id, violation_id, created_at)
+    select id, person_id, violation_id, now()
+    from stage.result_table as srt
+    where srt.id not in (select id from data_mart.result_table);
+    update data_mart.result_table as dmrt
+    set person_id    = srt.person_id,
+        violation_id = srt.violation_id,
+        updated_at   = now()
+    from stage.result_table as srt
+    where dmrt.id = srt.id
+      and (
+            dmrt.person_id <> srt.person_id or
+            dmrt.violation_id <> srt.violation_id
+        );
+end;
+$$;
+--#
+
+--changeset yura:2021-01-04-create-procedure-for-data-mart-violation/40 endDelimiter:#
+create function data_mart_violation_load() returns void
+    language plpgsql
+AS
+$$
+begin
+    insert into data_mart.violation (id, violation_name, created_at)
+    select id, violation_name, now()
+    from stage.violation as sv
+    where sv.id not in (select id from data_mart.violation);
+    update data_mart.violation as dv
+    set violation_name  = dv.violation_name,
+        updated_at   = now()
+    from stage.violation as sv
+    where dv.id = sv.id
+      and dv.violation_name <> sv.violation_name;
+end;
+$$;
+--#
+
+--changeset yura:2020-01-04-select-procedure-for-data-mart-auto/41
+select data_mart_auto_load();
+
+--changeset yura:2020-01-04-select-procedure-for-data-mart-car/42
+select data_mart_car_load();
+
+--changeset yura:2020-01-04-select-procedure-for-data-mart-result-table/43
+select data_mart_result_table_load();
+
+--changeset yura:2020-01-04-select-procedure-for-data-mart-violation/44
+select data_mart_violation_load();
