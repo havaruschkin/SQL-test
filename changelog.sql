@@ -3294,12 +3294,12 @@ begin
     from stage.person as sp
     where dp.id = sp.id
       and (
-            dp.first_name <> sp.first_name or
-            dp.last_name <> sp.last_name or
-            dp.phone_number <> sp.phone_number or
-            dp.car_id <> sp.car_id
+            coalesce(dp.first_name, ' ') <> coalesce(sp.first_name, ' ') or
+            coalesce(dp.last_name, ' ') <> coalesce(sp.last_name, ' ') or
+            coalesce(dp.phone_number, ' ') <> coalesce(sp.phone_number, ' ') or
+            coalesce(dp.car_id, 0) <> coalesce(sp.car_id, 0)
         );
-end;
+end
 $$;
 --#
 
@@ -3378,8 +3378,8 @@ begin
     from stage.auto as sa
     where da.id = sa.id
       and (
-            da.make <> sa.make or
-            da.model <> sa.model
+            coalesce(da.make, ' ') <> coalesce(sa.make, ' ') or
+            coalesce(da.model, ' ') <> coalesce(sa.model, ' ')
         );
 end;
 $$;
@@ -3402,8 +3402,8 @@ begin
     from stage.car as sc
     where dc.id = sc.id
       and (
-            dc.auto_id <> sc.auto_id or
-            dc.number_car <> sc.number_car
+            coalesce(dc.auto_id, 0) <> coalesce(sc.auto_id, 0) or
+            coalesce(dc.number_car, ' ') <> coalesce(sc.number_car, ' ')
         );
 end;
 $$;
@@ -3426,8 +3426,8 @@ begin
     from stage.result_table as srt
     where dmrt.id = srt.id
       and (
-            dmrt.person_id <> srt.person_id or
-            dmrt.violation_id <> srt.violation_id
+            coalesce(dmrt.person_id, 0) <> coalesce(srt.person_id, 0) or
+            coalesce(dmrt.violation_id, 0) <> coalesce(srt.violation_id, 0)
         );
 end;
 $$;
@@ -3444,11 +3444,11 @@ begin
     from stage.violation as sv
     where sv.id not in (select id from data_mart.violation);
     update data_mart.violation as dv
-    set violation_name  = dv.violation_name,
-        updated_at   = now()
+    set violation_name = dv.violation_name,
+        updated_at     = now()
     from stage.violation as sv
     where dv.id = sv.id
-      and dv.violation_name <> sv.violation_name;
+      and coalesce(dv.violation_name, ' ') <> coalesce(sv.violation_name, ' ');
 end;
 $$;
 --#
