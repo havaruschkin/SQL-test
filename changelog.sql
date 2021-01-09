@@ -3080,24 +3080,31 @@ values (56, '3465 AA 7'),
 update person
 set car_id = 1
 where id = 3;
+
 update person
 set car_id = 2
 where id = 2;
+
 update person
 set car_id = 3
 where id = 234;
+
 update person
 set car_id = 4
 where id = 6;
+
 update person
 set car_id = 5
 where id = 398;
+
 update person
 set car_id = 6
 where id = 34;
+
 update person
 set car_id = 7
 where id = 94;
+
 update person
 set car_id = 8
 where id = 456;
@@ -3180,6 +3187,7 @@ AS
 $$
 begin
     TRUNCATE TABLE stage.violation;
+
     insert into stage.violation (id, violation_name)
     select id, violation_name
     from public.violation;
@@ -3194,6 +3202,7 @@ AS
 $$
 begin
     TRUNCATE TABLE stage.auto;
+
     insert into stage.auto (id, make, model)
     select id, make, model
     from public.auto;
@@ -3208,6 +3217,7 @@ AS
 $$
 begin
     TRUNCATE TABLE stage.car;
+
     insert into stage.car (id, auto_id, number_car)
     select id, auto_id, number_car
     from public.car;
@@ -3222,6 +3232,7 @@ AS
 $$
 begin
     TRUNCATE TABLE stage.person;
+
     insert into stage.person (id, first_name, last_name, phone_number, car_id)
     select id, first_name, last_name, phone_number, car_id
     from public.person;
@@ -3236,6 +3247,7 @@ AS
 $$
 begin
     TRUNCATE TABLE stage.result_table;
+
     insert into stage.result_table (id, person_id, violation_id)
     select id, person_id, violation_id
     from public.result_table;
@@ -3285,6 +3297,7 @@ begin
     select id, first_name, last_name, phone_number, car_id, now()
     from stage.person sp
     where sp.id not in (select id from data_mart.person);
+
     update data_mart.person as dp
     set first_name   = sp.first_name,
         last_name    = sp.last_name,
@@ -3371,6 +3384,7 @@ begin
     select id, make, model, now()
     from stage.auto as sa
     where sa.id not in (select id from data_mart.auto);
+
     update data_mart.auto as da
     set make       = sa.make,
         model      = sa.model,
@@ -3395,6 +3409,7 @@ begin
     select id, auto_id, number_car, now()
     from stage.car as sc
     where sc.id not in (select id from data_mart.car);
+
     update data_mart.car as dc
     set auto_id    = sc.auto_id,
         number_car = sc.number_car,
@@ -3419,6 +3434,7 @@ begin
     select id, person_id, violation_id, now()
     from stage.result_table as srt
     where srt.id not in (select id from data_mart.result_table);
+
     update data_mart.result_table as dmrt
     set person_id    = srt.person_id,
         violation_id = srt.violation_id,
@@ -3443,6 +3459,7 @@ begin
     select id, violation_name, now()
     from stage.violation as sv
     where sv.id not in (select id from data_mart.violation);
+
     update data_mart.violation as dv
     set violation_name = dv.violation_name,
         updated_at     = now()
