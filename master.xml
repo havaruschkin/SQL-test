@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?> 
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"> <include file="changelog.sql" relativeToChangelogFile="true"/>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"> 
+
+<include file="/SQL-test/changelog-1-create-public.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-2-fill-public.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-3-create-stage.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-4-create-function-for-stage.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-5-fill-stage.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-6-create-data-mart.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-7-create-function-for-data-mart.sql" relativeToChangelogFile="true"/>
+<include file="/SQL-test/changelog-8-fill-data-mart.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog> 
